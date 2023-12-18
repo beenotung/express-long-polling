@@ -1,0 +1,32 @@
+{
+  "name": "express-long-polling",
+  "version": "0.0.0",
+  "description": "Library to implement long-polling API on express server.",
+  "keywords": [],
+  "author": {
+    "name": "Beeno Tung",
+    "email": "aabbcc1241@yahoo.com.hk",
+    "url": "https://beeno-tung.surge.sh"
+  },
+  "license": "BSD-2-Clause",
+  "main": "core.js",
+  "types": "core.d.ts",
+  "files": [
+    "core.js",
+    "core.d.ts"
+  ],
+  "scripts": {
+    "test": "tsc --noEmit",
+    "build": "tsc -p ."
+  },
+  "dependencies": {
+    "@types/express": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "rimraf": "^5.0.5",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.3.3"
+  }
+}
