@@ -9,6 +9,14 @@
     "url": "https://beeno-tung.surge.sh"
   },
   "license": "BSD-2-Clause",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/beenotung/express-long-polling.git"
+  },
+  "homepage": "https://github.com/beenotung/express-long-polling#readme",
+  "bugs": {
+    "url": "https://github.com/beenotung/express-long-polling/issues"
+  },
   "main": "core.js",
   "types": "core.d.ts",
   "files": [
