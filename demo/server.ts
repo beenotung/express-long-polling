@@ -24,9 +24,9 @@ app.get('/task', (req, res) => {
   let task = taskQueue.getFirstTask()
   if (task) {
     res.json({ task })
-    return
+  } else {
+    taskQueue.waitTask(req)
   }
-  taskQueue.waitTask(req)
 })
 
 app.post('/task/result', (req, res) => {
