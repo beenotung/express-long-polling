@@ -16,6 +16,8 @@ export class LongPollingTask<Input, Output> {
   }
 }
 
+let defaultPollingInterval = 1000 * 30
+
 export class LongPollingTaskQueue<Input, Output> {
   pollingInterval: number
   pollingRequests: express.Request[] = []
@@ -23,7 +25,7 @@ export class LongPollingTaskQueue<Input, Output> {
   pendingTasks: LongPollingTask<Input, Output>[] = []
 
   constructor(options?: { pollingInterval?: number }) {
-    this.pollingInterval = options?.pollingInterval || 1000 * 5
+    this.pollingInterval = options?.pollingInterval || defaultPollingInterval
   }
 
   addTask(options: {
