@@ -14,6 +14,54 @@ npm i express-long-polling
 
 See complete demo in [server.ts](./demo/server.ts), [process-task.ts](./demo/process-task.ts) and [submit-task.ts](./demo/submit-task.ts).
 
+```typescript
+import express from 'express'
+import cors from 'cors'
+import { print } from 'listening-on'
+import { LongPollingTaskQueue } from 'express-long-polling'
+
+let app = express()
+
+app.use(cors())
+app.use(express.json())
+
+let taskQueue = new LongPollingTaskQueue()
+
+app.post('/task', (req, res) => {
+  taskQueue.addTask({
+    input: req.body,
+    callback(output) {
+      res.json({ output })
+    },
+  })
+})
+
+app.get('/task', (req, res) => {
+  let task = taskQueue.getFirstTask()
+  if (task) {
+    res.json({ task })
+  } else {
+    taskQueue.waitTask(req)
+  }
+})
+
+app.post('/task/result', (req, res) => {
+  let { id, output } = req.body
+  let task = taskQueue.dispatchResult(id, output)
+  if (task) {
+    res.status(201)
+  } else {
+    res.status(404)
+  }
+  res.json({})
+})
+
+let PORT = 8100
+app.listen(PORT, () => {
+  print(PORT)
+})
+```
+
 ## Typescript Signature
 
 ```typescript
