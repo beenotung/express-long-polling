@@ -1,6 +1,6 @@
 {
   "name": "express-long-polling",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Library to implement long-polling API on express server.",
   "keywords": [],
   "author": {
