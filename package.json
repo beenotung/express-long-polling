@@ -27,7 +27,7 @@
     "test": "tsc --noEmit",
     "build": "tsc -p ."
   },
-  "dependencies": {
+  "peerDependencies": {
     "@types/express": "^4.17.21"
   },
   "devDependencies": {
