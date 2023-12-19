@@ -4,9 +4,48 @@ Library to implement long-polling API on express server.
 
 [![npm Package Version](https://img.shields.io/npm/v/express-long-polling)](https://www.npmjs.com/package/express-long-polling)
 
+## Installation
+
+```bash
+npm i express-long-polling
+```
+
 ## Usage Example
 
-See [server.ts](./demo/server.ts), [process-task.ts](./demo/process-task.ts) and [submit-task.ts](./demo/submit-task.ts) in demo project.
+See complete demo in [server.ts](./demo/server.ts), [process-task.ts](./demo/process-task.ts) and [submit-task.ts](./demo/submit-task.ts).
+
+## Typescript Signature
+
+```typescript
+import type { Request } from 'express'
+
+export class LongPollingTask<Input, Output> {
+  id: string
+  input: Input
+  dispatchResult(output: Output): void
+}
+
+export class LongPollingTaskQueue<Input, Output> {
+  constructor(options?: { pollingInterval?: number })
+
+  addTask(options: {
+    id?: string
+    input: Input
+    callback: (output: Output) => void
+  }): LongPollingTask<Input, Output>
+
+  getFirstTask(): LongPollingTask<Input, Output> | null
+
+  getRandomTask(): LongPollingTask<Input, Output> | null
+
+  waitTask(req: Request): void
+
+  dispatchResult(
+    id: string,
+    output: Output,
+  ): LongPollingTask<Input, Output> | null
+}
+```
 
 ## License
 
