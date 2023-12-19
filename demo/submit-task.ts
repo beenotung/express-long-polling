@@ -3,8 +3,7 @@ import { PORT } from './config'
 async function main() {
   let api_origin = 'http://localhost:' + PORT
 
-  let wait = true
-  let res = await fetch(api_origin + '/task?wait=' + wait, {
+  let res = await fetch(api_origin + '/task', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -12,14 +12,12 @@ app.use(express.urlencoded({ extended: false }))
 let taskQueue = new LongPollingTaskQueue()
 
 app.post('/task', (req, res) => {
-  let wait = req.query.wait != 'false'
-  let task = taskQueue.addTask({
+  taskQueue.addTask({
     input: req.body,
     callback(output) {
-      if (wait) res.json({ output })
+      res.json({ output })
     },
   })
-  if (!wait) res.json({ id: task.id })
 })
 
 app.get('/task', (req, res) => {
