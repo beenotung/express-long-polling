@@ -20,13 +20,26 @@ app.post('/task', (req, res) => {
   })
 })
 
-app.get('/task', (req, res) => {
+app.get('/task/first', (req, res) => {
   let task = taskQueue.getFirstTask()
   if (task) {
     res.json({ task })
   } else {
-    taskQueue.waitTask(req)
+    taskQueue.waitTask(req, task => res.json({ task }))
   }
+})
+
+app.get('/task/random', (req, res) => {
+  let task = taskQueue.getRandomTask()
+  if (task) {
+    res.json({ task })
+  } else {
+    taskQueue.waitTask(req, task => res.json({ task }))
+  }
+})
+
+app.get('/task/any', (req, res) => {
+  taskQueue.getOrWaitTask('random', req, task => res.json({ task }))
 })
 
 app.post('/task/result', (req, res) => {

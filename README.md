@@ -36,13 +36,26 @@ app.post('/task', (req, res) => {
   })
 })
 
-app.get('/task', (req, res) => {
+app.get('/task/first', (req, res) => {
   let task = taskQueue.getFirstTask()
   if (task) {
     res.json({ task })
   } else {
-    taskQueue.waitTask(req)
+    taskQueue.waitTask(req, task => res.json({ task }))
   }
+})
+
+app.get('/task/random', (req, res) => {
+  let task = taskQueue.getRandomTask()
+  if (task) {
+    res.json({ task })
+  } else {
+    taskQueue.waitTask(req, task => res.json({ task }))
+  }
+})
+
+app.get('/task/any', (req, res) => {
+  taskQueue.getOrWaitTask('random', req, task => res.json({ task }))
 })
 
 app.post('/task/result', (req, res) => {
@@ -73,11 +86,17 @@ export class LongPollingTask<Input, Output> {
   dispatchResult(output: Output): void
 }
 
+/** @description redirect with 307 to let client retry */
+function defaultOnTimeout(req: Request): void {
+  req.res?.redirect(307, req.url)
+}
+
 export class LongPollingTaskQueue<Input, Output> {
   constructor(options?: { pollingInterval?: number })
 
   addTask(options: {
-    id?: string
+    /** @default randomUUID */
+    id?: string | (() => string)
     input: Input
     callback: (output: Output) => void
   }): LongPollingTask<Input, Output>
@@ -92,6 +111,43 @@ export class LongPollingTaskQueue<Input, Output> {
     id: string,
     output: Output,
   ): LongPollingTask<Input, Output> | null
+}
+
+export class LongPollingTaskQueue<
+  Input,
+  Output,
+  Task extends LongPollingTask<Input, Output> = LongPollingTask<Input, Output>,
+> {
+  constructor(options?: {
+    /** @default 30 seconds */
+    pollingInterval?: number
+  })
+
+  addTask(options: {
+    /** @default randomUUID */
+    id?: string | (() => string)
+    input: Input
+    callback: (output: Output) => void
+  }): Task
+
+  getFirstTask(): Task | null
+
+  getRandomTask(): Task | null
+
+  waitTask(
+    req: Request,
+    onTask: (task: Task, req: Request) => void,
+    onTimeout?: typeof defaultOnTimeout,
+  ): void
+
+  getOrWaitTask(
+    getTask: 'first' | 'random' | (() => Task | null),
+    req: Request,
+    onTask: (task: Task, req: Request) => void,
+    onTimeout?: typeof defaultOnTimeout,
+  ): void
+
+  dispatchResult(id: string, output: Output): Task | null
 }
 ```
 
