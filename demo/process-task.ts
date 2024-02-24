@@ -3,7 +3,7 @@ import { PORT } from './config'
 async function main() {
   let api_origin = 'http://localhost:' + PORT
 
-  let res = await fetch(api_origin + '/task')
+  let res = await fetch(api_origin + '/task/any')
   let {
     task: { id, input },
   } = await res.json()
