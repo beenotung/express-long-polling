@@ -10,7 +10,11 @@ async function main() {
     },
     body: JSON.stringify({ startTime: Date.now() }),
   })
-  let json = await res.json()
-  console.log('submit task result:', json)
+  let { id } = await res.json()
+  console.log('submitted task:', { id })
+
+  res = await fetch(api_origin + '/task/result?id=' + id)
+  let { output } = await res.json()
+  console.log('task output:', output)
 }
 main().catch(e => console.error(e))

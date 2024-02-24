@@ -25,48 +25,44 @@ let app = express()
 app.use(cors())
 app.use(express.json())
 
-let taskQueue = new LongPollingTaskQueue()
+let taskQueue = new LongPollingTaskQueue({ pollingInterval: 30 * 1000 })
 
+// client creates pending task
 app.post('/task', (req, res) => {
-  taskQueue.addTask({
+  let { id } = taskQueue.addTask({
     input: req.body,
-    callback(output) {
-      res.json({ output })
-    },
+  })
+  res.json({ id })
+})
+
+// worker polls pending task
+app.get('/task', (req, res) => {
+  taskQueue.getOrWaitTask('random', req, ({ id, input }) =>
+    res.json({ id, input }),
+  )
+})
+
+// worker submits task result
+app.post('/task/result', (req, res) => {
+  let { id, output } = req.body
+  let found = taskQueue.dispatchResult(id, output)
+  res.status(201)
+  res.end()
+})
+
+// client gets task result
+app.get('/task/result', (req, res) => {
+  let { id } = req.query
+  taskQueue.getOrWaitResult(id, req, output => {
+    res.json({ output })
   })
 })
 
-app.get('/task/first', (req, res) => {
-  let task = taskQueue.getFirstTask()
-  if (task) {
-    res.json({ task })
-  } else {
-    taskQueue.waitTask(req, task => res.json({ task }))
-  }
-})
-
-app.get('/task/random', (req, res) => {
-  let task = taskQueue.getRandomTask()
-  if (task) {
-    res.json({ task })
-  } else {
-    taskQueue.waitTask(req, task => res.json({ task }))
-  }
-})
-
-app.get('/task/any', (req, res) => {
-  taskQueue.getOrWaitTask('random', req, task => res.json({ task }))
-})
-
-app.post('/task/result', (req, res) => {
-  let { id, output } = req.body
-  let task = taskQueue.dispatchResult(id, output)
-  if (task) {
-    res.status(201)
-  } else {
-    res.status(404)
-  }
-  res.json({})
+// client delete completed task
+app.delete('/task', (req, res) => {
+  let { id } = req.query
+  taskQueue.deleteTask(id)
+  res.end()
 })
 
 let PORT = 8100
@@ -80,74 +76,61 @@ app.listen(PORT, () => {
 ```typescript
 import type { Request } from 'express'
 
-export class LongPollingTask<Input, Output> {
-  id: string
-  input: Input
-  dispatchResult(output: Output): void
-}
-
 /** @description redirect with 307 to let client retry */
 function defaultOnTimeout(req: Request): void {
   req.res?.redirect(307, req.url)
 }
 
 export class LongPollingTaskQueue<Input, Output> {
-  constructor(options?: { pollingInterval?: number })
-
-  addTask(options: {
-    /** @default randomUUID */
-    id?: string | (() => string)
-    input: Input
-    callback: (output: Output) => void
-  }): LongPollingTask<Input, Output>
-
-  getFirstTask(): LongPollingTask<Input, Output> | null
-
-  getRandomTask(): LongPollingTask<Input, Output> | null
-
-  waitTask(req: Request): void
-
-  dispatchResult(
-    id: string,
-    output: Output,
-  ): LongPollingTask<Input, Output> | null
-}
-
-export class LongPollingTaskQueue<
-  Input,
-  Output,
-  Task extends LongPollingTask<Input, Output> = LongPollingTask<Input, Output>,
-> {
   constructor(options?: {
     /** @default 30 seconds */
     pollingInterval?: number
   })
 
+  /**
+   * @description create task from client
+   */
   addTask(options: {
     /** @default randomUUID */
     id?: string | (() => string)
     input: Input
-    callback: (output: Output) => void
-  }): Task
+  }): {
+    id: string
+  }
 
-  getFirstTask(): Task | null
-
-  getRandomTask(): Task | null
-
-  waitTask(
-    req: Request,
-    onTask: (task: Task, req: Request) => void,
-    onTimeout?: typeof defaultOnTimeout,
-  ): void
-
+  /**
+   * @description get task from worker
+   */
   getOrWaitTask(
-    getTask: 'first' | 'random' | (() => Task | null),
+    getTask: 'first' | 'random',
     req: Request,
-    onTask: (task: Task, req: Request) => void,
+    onTask: (task: { id: string; input: Input }) => void,
     onTimeout?: typeof defaultOnTimeout,
   ): void
 
-  dispatchResult(id: string, output: Output): Task | null
+  /**
+   * @description dispatch result from worker
+   * @returns true if the task is found and deleted
+   * @returns false if the task is not found (maybe already deleted)
+   */
+  dispatchResult(id: string, output: Output): boolean
+
+  /**
+   * @description get result from client (dispatched from worker)
+   */
+  getOrWaitResult(
+    id: string,
+    req: Request,
+    onOutput: (output: Output) => void,
+    onTimeout?: typeof defaultOnTimeout,
+  ): void
+
+  /**
+   * @description delete completed task from client (to release memory)
+   * @returns true if the task is found and deleted
+   * @returns false if the task is not found (maybe already deleted)
+   */
+  deleteTask(id: string): boolean
 }
 ```
 
