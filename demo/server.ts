@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Request } from 'express'
 import { print } from 'listening-on'
 import { PORT } from './config'
 import { LongPollingTaskQueue } from '../core'
@@ -50,9 +50,13 @@ app.get('/task/result', (req, res) => {
     res.json({ error: 'expect task id in req.query' })
     return
   }
-  taskQueue.getOrWaitResult(id, req, output => {
-    res.json({ output })
-  })
+  taskQueue.getOrWaitResult(
+    id,
+    req,
+    output => res.json({ status: 'completed', output }),
+    /* optional, default will redirect with 307 for the same url */
+    timeout => res.json({ status: 'pending' }),
+  )
 })
 
 // DELETE /task?id=123

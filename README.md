@@ -53,9 +53,13 @@ app.post('/task/result', (req, res) => {
 // client gets task result
 app.get('/task/result', (req, res) => {
   let { id } = req.query
-  taskQueue.getOrWaitResult(id, req, output => {
-    res.json({ output })
-  })
+  taskQueue.getOrWaitResult(
+    id,
+    req,
+    output => res.json({ status: 'completed', output }),
+    /* optional, default will redirect with 307 for the same url */
+    timeout => res.json({ status: 'pending' }),
+  )
 })
 
 // client delete completed task
