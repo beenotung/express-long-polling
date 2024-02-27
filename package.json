@@ -1,6 +1,6 @@
 {
   "name": "express-long-polling",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Library to implement task dispatching with long-polling approach on express server.",
   "keywords": [
     "long-polling",
