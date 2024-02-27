@@ -2,7 +2,15 @@
   "name": "express-long-polling",
   "version": "3.0.0",
   "description": "Library to implement task dispatching with long-polling approach on express server.",
-  "keywords": [],
+  "keywords": [
+    "long-polling",
+    "task-dispatch",
+    "async-task",
+    "multi-process",
+    "express",
+    "typescript",
+    "lightweight"
+  ],
   "author": {
     "name": "Beeno Tung",
     "email": "aabbcc1241@yahoo.com.hk",
