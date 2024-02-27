@@ -22,6 +22,9 @@ export class LongPollingTask<Input, Output> {
       }
     }
     this.listeners.length = 0
+    this.addListener = listener => {
+      listener(output)
+    }
   }
 
   addListener(listener: (output: Output) => void): void {
