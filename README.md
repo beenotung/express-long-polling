@@ -1,6 +1,6 @@
 # express-long-polling
 
-Library to implement long-polling API on express server.
+Library to implement task dispatching with long-polling approach on express server.
 
 [![npm Package Version](https://img.shields.io/npm/v/express-long-polling)](https://www.npmjs.com/package/express-long-polling)
 

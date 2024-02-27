@@ -1,7 +1,7 @@
 {
   "name": "express-long-polling",
   "version": "3.0.0",
-  "description": "Library to implement long-polling API on express server.",
+  "description": "Library to implement task dispatching with long-polling approach on express server.",
   "keywords": [],
   "author": {
     "name": "Beeno Tung",
